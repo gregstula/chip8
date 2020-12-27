@@ -1,26 +1,31 @@
 #pragma once
-#include <SDL2/SDL.h>
+#include <array>
 #include <cstdint>
+#include <SDL2/SDL.h>
 #include <sstream>
 #include <string>
 
+#include "chip8.hpp"
+
 namespace chip8 {
-
-
-struct display {
+class display {
     SDL_Window* window;
     SDL_Renderer* renderer;
     SDL_Texture* texture;
-    const int SCREEN_WIDTH;
-    const int SCREEN_HEIGHT;
+public:
+    // scale factor
+    static constexpr auto SCALE = 10;
 
-    display(std::string name, const int screen_width, const int screen_height);
+    // draw function
+    void render(std::array<int, SCREEN_DIMS>& data);
+
+    display();
     ~display() noexcept;
+
     display(const display&) = delete;
     display& operator=(const display&) = delete;
     display(display&&) = delete;
     display& operator=(display&&) = delete;
 };
 
-void render_pixels_to_screen(int* pixels, display& screen);
 } // namespace chip8
