@@ -1,7 +1,7 @@
 #pragma once
+#include <SDL2/SDL.h>
 #include <array>
 #include <cstdint>
-#include <SDL2/SDL.h>
 #include <sstream>
 #include <string>
 
@@ -12,6 +12,7 @@ class display {
     SDL_Window* window;
     SDL_Renderer* renderer;
     SDL_Texture* texture;
+
 public:
     // scale factor
     static constexpr auto SCALE = 10;

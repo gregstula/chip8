@@ -1,10 +1,11 @@
 #include "display.hpp"
-#include <stdexcept>
 #include <cstring>
+#include <stdexcept>
 
 namespace chip8 {
 
-display::display() {
+display::display()
+{
     // initialize SDL
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
         std::stringstream ss;
@@ -44,24 +45,27 @@ display::~display() noexcept
     SDL_Quit();
 }
 
-void display::render(std::array<int,SCREEN_DIMS>& pixels)
+void display::render(std::array<int, SCREEN_DIMS>& pixels)
 {
     // Copy emulator pixels to texture pixels on GPU
-    void* texture_pixels; // used by lock function
+    uint32_t* texture_pixels = nullptr; // used by lock function
     int pitch;
     // Lock texture pixels to be write only
-    if (SDL_LockTexture(texture, nullptr, &texture_pixels, &pitch) != 0) {
-         std::stringstream ss;
+    if (SDL_LockTexture(texture, nullptr, reinterpret_cast<void**>(&texture_pixels), &pitch) != 0) {
+        std::stringstream ss;
         ss << "Could not lock texture! SDL2 ERROR: " << SDL_GetError();
         throw std::runtime_error(ss.str());
     }
     // copy the pixels
-    std::memcpy(texture_pixels, pixels.data(), pixels.size());
+    for (size_t i = 0; i < pixels.size(); i++) {
+        // white for on, black for off
+        texture_pixels[i] = pixels[i] != 0 ? 0xFFFFFFFF : 0xFF000000;
+    }
+
     // unlock the texture applying changes.
     SDL_UnlockTexture(texture);
 
-   SDL_RenderClear(renderer);
-   SDL_RenderCopy(renderer, texture, nullptr, nullptr);
-   SDL_RenderPresent(renderer);
+    SDL_RenderClear(renderer);
+    SDL_RenderCopy(renderer, texture, nullptr, nullptr);
+    SDL_RenderPresent(renderer);
 }
-
