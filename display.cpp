@@ -34,7 +34,7 @@ display::display()
     }
 
     // create texture
-    texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, SCREEN_HEIGHT, SCREEN_WIDTH);
+    texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, SCREEN_WIDTH, SCREEN_HEIGHT);
 }
 
 display::~display() noexcept
@@ -65,9 +65,10 @@ void display::render(std::array<uint8_t, SCREEN_DIMS>& pixels)
     // unlock the texture applying changes.
     SDL_UnlockTexture(texture);
 
+    //SDL_Rect dest_rect = {0,0,SCREEN_WIDTH * SCALE, SCREEN_HEIGHT * SCALE};
     SDL_RenderClear(renderer);
     SDL_RenderCopy(renderer, texture, nullptr, nullptr);
     SDL_RenderPresent(renderer);
 }
 
-}// namespace chip8
+} // namespace chip8
