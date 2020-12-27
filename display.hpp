@@ -18,7 +18,7 @@ public:
     static constexpr auto SCALE = 10;
 
     // draw function
-    void render(std::array<int, SCREEN_DIMS>& data);
+    void render(std::array<uint8_t, SCREEN_DIMS>& data);
 
     display();
     ~display() noexcept;

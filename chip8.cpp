@@ -1,8 +1,10 @@
 #include "chip8.hpp"
 #include <fstream>
+#include <thread>
+#include <chrono>
 
 namespace chip8 {
-
+using namespace std::chrono_literals;
 void vm::load_rom(std::string path)
 {
     std::ifstream rom(path, std::ios::binary | std::ios::ate);
@@ -66,16 +68,43 @@ void vm::execute()
     // with the sprite data located with the I register
     // the sprite should modulo around the display but clip
     case 0xD:
-        auto x_coord = v_registers[x] & 64;
-        auto y_coord = v_registers[y] & 32;
+        auto x_coord = v_registers[x] & SCREEN_WIDTH;
+        auto y_coord = v_registers[y] & SCREEN_HEIGHT;
         v_registers[0xF] = 0;
 
         for (int i = 0; i < n; i++) {
+            // stop drawing if y coord reaches the bottom
+            if (y_coord >= SCREEN_HEIGHT) break;
+
             auto sprite = memory[index_reg];
+            while(sprite) {
+                // stop drawing row id reached edge of the screen
+                if (x_coord >= SCREEN_WIDTH) break;
+                // if the pixel is on in the sprite row xor it with the screen coords
+                auto d_pix = screen[x_coord * SCREEN_WIDTH + y];
+
+                // each bit in the sprite is a pixel
+                auto s_pix = sprite & 1;
+                if (s_pix == 1) {
+                    screen[x_coord * SCREEN_WIDTH + y] ^= s_pix;
+                    // if screen pixel was already on set v[F] reg to 1
+                    if (d_pix == s_pix) v_registers[0xF] = 1;
+                }
+                sprite >>= 1;
+                x_coord++;
+            }
+            y_coord++;
         }
 
         break;
     }
+}
+
+void vm::tick()
+{
+   fetch();
+   execute();
+   std::this_thread::sleep_for(60ms);
 }
 
 } // namespace chip8

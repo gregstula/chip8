@@ -1,7 +1,7 @@
 CXX=g++
 CXXFLAGS=-Wall -std=c++17
 LIBS=-lSDL2
-SRC=main.cpp
+SRC=main.cpp chip8.cpp display.cpp
 
 all:
 	$(CXX) $(CXXFLAGS) $(LIBS) -o chip8 $(SRC)

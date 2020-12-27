@@ -45,7 +45,7 @@ display::~display() noexcept
     SDL_Quit();
 }
 
-void display::render(std::array<int, SCREEN_DIMS>& pixels)
+void display::render(std::array<uint8_t, SCREEN_DIMS>& pixels)
 {
     // Copy emulator pixels to texture pixels on GPU
     uint32_t* texture_pixels = nullptr; // used by lock function
@@ -69,3 +69,5 @@ void display::render(std::array<int, SCREEN_DIMS>& pixels)
     SDL_RenderCopy(renderer, texture, nullptr, nullptr);
     SDL_RenderPresent(renderer);
 }
+
+}// namespace chip8
