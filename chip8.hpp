@@ -40,7 +40,7 @@ struct vm {
     uint16_t program_counter;
     uint16_t index_reg;
     std::stack<uint16_t> stack;
-    std::array<uint8_t, 15> v_registers;
+    std::array<uint8_t, 15> V;
     instruction current_op { 0, 0 };
 
     void load_rom(std::string path);

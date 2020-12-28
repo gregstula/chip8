@@ -15,7 +15,7 @@ class display {
 
 public:
     // scale factor
-    static constexpr auto SCALE = 10;
+    static constexpr auto SCALE = 20;
 
     // draw function
     void render(std::array<uint8_t, SCREEN_DIMS>& data);
