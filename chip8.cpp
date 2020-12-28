@@ -69,8 +69,8 @@ void vm::execute()
     // with the sprite data located with the I register
     // the sprite should modulo around the display but clip
     case 0xD: {
-        auto x_coord = v_registers[x] % SCREEN_WIDTH;
-        auto y_coord = v_registers[y] % SCREEN_HEIGHT;
+        auto x_coord = v_registers[x];
+        auto y_coord = v_registers[y];
         v_registers[0xF] = 0;
 
         for (int i = 0; i < n; i++) {
@@ -78,23 +78,18 @@ void vm::execute()
             if (y_coord >= SCREEN_HEIGHT) break;
 
             auto sprite = memory[index_reg + i];
-            while (sprite) {
-                // stop drawing row id reached edge of the screen
-                if (x_coord >= SCREEN_WIDTH) break;
+            for (int j = 0; j < 8; j++) {
                 // if the pixel is on in the sprite row xor it with the screen coords
-                auto d_pix = screen[x_coord * SCREEN_WIDTH + y_coord];
-
+                auto coords = ((x_coord + j) + SCREEN_WIDTH * (y_coord + i)) % 2048;
+                auto d_pix = screen[coords];
                 // each bit in the sprite is a pixel
-                auto s_pix = sprite & 1;
-                if (s_pix == 1) {
-                    screen[x_coord * SCREEN_WIDTH + y_coord] ^= s_pix;
-                    // if screen pixel was already on set v[F] reg to 1
-                    if (d_pix == s_pix) v_registers[0xF] = 1;
+                auto s_pix = sprite & (0b10000000 >> j);
+                if(s_pix) {
+                    screen[coords] ^= 1;
+                    // if was originally 1 set to 1
+                    v_registers[0xF] = d_pix;
                 }
-                sprite >>= 1;
-                x_coord++;
             }
-            y_coord++;
         }
         break;
     }

@@ -22,7 +22,7 @@ int main()
             }
         }
         chip8_vm.tick();
-        //        display.render(chip8_vm.screen);
+        display.render(chip8_vm.screen);
         int count = 0;
         for (auto&& i : chip8_vm.screen) {
             std::cout << (int)i;
