@@ -1,5 +1,5 @@
 CXX=g++
-CXXFLAGS=-Wall -std=c++17
+CXXFLAGS=-Wall -Wextra -pedantic -std=c++17
 LIBS=-lSDL2
 SRC=main.cpp chip8.cpp display.cpp
 

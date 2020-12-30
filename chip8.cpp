@@ -1,12 +1,15 @@
 #include "chip8.hpp"
+#include <algorithm>
 #include <chrono>
 #include <fstream>
+#include <random>
 #include <thread>
 
 namespace chip8 {
 using namespace std::chrono_literals;
 void vm::load_rom(std::string path)
-{ std::ifstream rom(path, std::ios::binary | std::ios::ate);
+{
+    std::ifstream rom(path, std::ios::binary | std::ios::ate);
     auto size = rom.tellg();
     rom.seekg(0, std::ios::beg);
     rom.read(reinterpret_cast<char*>(memory.data() + 512), size);
@@ -17,6 +20,28 @@ void vm::fetch()
 {
     current_op = instruction(memory[program_counter], memory[program_counter + 1]);
     program_counter += 2;
+}
+
+// hellish C++ rand() replacement
+std::mt19937 make_seeded_rng()
+{
+    std::random_device dev_rand; // reads from /dev/random and returns an int
+    std::array<uint32_t, std::mt19937::state_size> a; // array to hold all 600+ states needed to properly seed "mersenne twister" rng
+    std::generate(a.begin(), a.end(), std::ref(dev_rand)); // generate the numbers for the array using the random device
+    std::seed_seq seed(a.begin(), a.end()); // create the seed sequence from the array of random ints
+    // return the actual mersenne twister and hope RVO moves it
+    return { std::mt19937(seed) };
+}
+
+// over-engineered rng function for the 0xC instruction to get a random int 0-255
+// mt19937 aka mersenne twister is expensive to make so we only make it once
+// that's why we use a seperate function to make it and save it statically
+uint8_t rng()
+{
+
+    thread_local static auto rng = make_seeded_rng();
+    std::uniform_int_distribution<int> dist(0, 255);
+    return dist(rng);
 }
 
 void vm::execute()
@@ -114,7 +139,7 @@ void vm::execute()
             V[x] /= 2;
             break;
 
-         // subtraction v[y] - v[x]. if v[y] > v[x] then v[f] is set to 1
+            // subtraction v[y] - v[x]. if v[y] > v[x] then v[f] is set to 1
         case 0x7:
             V[0xF] = V[x] < V[y];
             V[x] = V[y] - V[x];
@@ -126,13 +151,13 @@ void vm::execute()
             V[x] *= 2;
             break;
 
-        }// switch
+        } // switch
         break;
 
     // skip next intruction if Vx != Vy
     case 0x9:
-          if (V[x] != V[y]) program_counter += 2;
-          break;
+        if (V[x] != V[y]) program_counter += 2;
+        break;
 
     // set i register;
     case 0xA:
@@ -143,9 +168,14 @@ void vm::execute()
     case 0xB:
         program_counter = nnn + V[0];
         break;
-        // draw a sprite N rows talls at coords v[x] and v[y]
-        // with the sprite data located with the I register
-        // the sprite should modulo around the display but clip
+    // set V[x] to a random byte which is AND of nn
+    case 0xC:
+        V[x] = rng() & nn;
+        break;
+
+    // draw a sprite N rows talls at coords v[x] and v[y]
+    // with the sprite data located with the I register
+    // the sprite should modulo around the display but clip
     case 0xD: { // variable scope
         auto x_coord = V[x];
         auto y_coord = V[y];
@@ -183,6 +213,20 @@ void vm::execute()
         }
         break;
     } // variable scope
+
+    // two instructions here
+    case 0xE:
+        switch (nn) {
+
+            // Skip next instruction if the key with the balue of V[x] is pressed
+            case 0x9E:
+            break;
+            // Skip next instruction if the key with the balue of V[x] is NOT pressed
+            case 0xA1:
+            break;
+        }
+
+        break;
     default:
         break;
     }
