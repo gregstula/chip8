@@ -5,15 +5,18 @@
 int main()
 {
     chip8::display display {};
-    chip8::vm chip8_vm {};
-    chip8_vm.load_rom("ibmlogo.ch8");
+    chip8::vm vm {};
 
-    for (;;) {
+    vm.load_rom("ibmlogo.ch8");
+    vm.start_timers();
+
+    bool quit = false;
+    while (!quit) {
         SDL_Event event;
-        if (SDL_PollEvent(&event)) {
+        while (SDL_PollEvent(&event)) {
 
             if (event.type == SDL_QUIT) {
-
+                quit = true;
                 break;
             }
             else if (event.type == SDL_KEYDOWN) {
@@ -21,14 +24,15 @@ int main()
             else if (event.type == SDL_KEYUP) {
             }
         }
-        chip8_vm.tick();
-        display.render(chip8_vm.screen);
-        int count = 0;
-        for (auto&& i : chip8_vm.screen) {
-            std::cout << (int)i;
-            if (++count % chip8::SCREEN_WIDTH == 0) std::cout << "\n";
-        }
-        std::cout << "OP:" << std::hex << (int)chip8_vm.current_op.type << std::endl;
+        vm.tick();
+        display.render(vm.screen);
+        /*            int count = 0;
+            for (auto&& i : vm.screen) {
+                std::cout << (int)i;
+                if (++count % chip8::SCREEN_WIDTH == 0) std::cout << "\n";
+            }
+            std::cout << "OP:" << std::hex << (int)vm.current_op.type << std::endl;
+*/
     }
     return 0;
 }

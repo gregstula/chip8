@@ -5,6 +5,7 @@ cmake_minimum_required(VERSION 3.19)
 project(chip8)
 set(CMAKE_VERBOSE_MAKEFILE ON)
 find_package(SDL2 REQUIRED)
+find_package(Thread REQUIRED)
 
 include_directories(${SDL2_INCLUDE_DIRS})
 

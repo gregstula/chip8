@@ -1,6 +1,6 @@
 CXX=g++
 CXXFLAGS=-Wall -Wextra -pedantic -std=c++17
-LIBS=-lSDL2
+LIBS=-lSDL2 -pthread
 SRC=main.cpp chip8.cpp display.cpp
 
 all:

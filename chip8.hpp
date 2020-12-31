@@ -1,7 +1,11 @@
 #pragma once
 #include <array>
+#include <atomic>
+#include <condition_variable>
+#include <memory>
 #include <stack>
 #include <string>
+#include <thread>
 
 namespace chip8 {
 
@@ -35,18 +39,28 @@ struct instruction {
 };
 
 struct vm {
-    std::array<uint8_t, 4096> memory;
-    std::array<uint8_t, SCREEN_DIMS> screen;
-    uint16_t program_counter;
-    uint16_t index_reg;
-    std::stack<uint16_t> stack;
-    std::array<uint8_t, 15> V;
+    void start_timers();
+    void load_rom(std::string path);
+    void tick();
+
+    std::array<std::uint8_t, 4096> memory;
+    std::array<std::uint8_t, SCREEN_DIMS> screen;
+    std::uint16_t program_counter;
+    std::uint16_t index_reg;
+    std::stack<std::uint16_t> stack;
+    std::array<std::uint8_t, 15> V;
+
+    // timers
+    std::atomic<std::uint8_t> delay_timer { 0 };
+    std::atomic<std::uint8_t> sound_timer { 0 };
+
+    // current op
     instruction current_op { 0, 0 };
 
-    void load_rom(std::string path);
+    void launch_delay_timer();
+    void launch_timer(std::atomic<std::uint8_t>& timer);
     void fetch();
     void execute();
-    void tick();
 };
 
 } // namespace chip8

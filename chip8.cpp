@@ -1,32 +1,18 @@
 #include "chip8.hpp"
 #include <algorithm>
 #include <chrono>
+#include <cstdint>
 #include <fstream>
 #include <random>
-#include <thread>
 
 namespace chip8 {
 using namespace std::chrono_literals;
-void vm::load_rom(std::string path)
-{
-    std::ifstream rom(path, std::ios::binary | std::ios::ate);
-    auto size = rom.tellg();
-    rom.seekg(0, std::ios::beg);
-    rom.read(reinterpret_cast<char*>(memory.data() + 512), size);
-    program_counter = 512;
-}
-
-void vm::fetch()
-{
-    current_op = instruction(memory[program_counter], memory[program_counter + 1]);
-    program_counter += 2;
-}
 
 // hellish C++ rand() replacement
 std::mt19937 make_seeded_rng()
 {
     std::random_device dev_rand; // reads from /dev/random and returns an int
-    std::array<uint32_t, std::mt19937::state_size> a; // array to hold all 600+ states needed to properly seed "mersenne twister" rng
+    std::array<std::uint32_t, std::mt19937::state_size> a; // array to hold all 600+ states needed to properly seed "mersenne twister" rng
     std::generate(a.begin(), a.end(), std::ref(dev_rand)); // generate the numbers for the array using the random device
     std::seed_seq seed(a.begin(), a.end()); // create the seed sequence from the array of random ints
     // return the actual mersenne twister and hope RVO moves it
@@ -44,6 +30,46 @@ uint8_t rng()
     return dist(rng);
 }
 
+// start delay timer on a seperate thread
+void vm::launch_timer(std::atomic<std::uint8_t>& timer)
+{
+    std::thread([&]() {
+        for (;;) {
+            auto target_time = std::chrono::high_resolution_clock::now();
+            while (timer) {
+                target_time += 16ms;
+                std::this_thread::sleep_until(target_time);
+                --delay_timer;
+            }
+            std::this_thread::yield();
+        }
+    }).detach();
+}
+
+void vm::start_timers()
+{
+    launch_timer(delay_timer);
+    launch_timer(sound_timer);
+}
+
+// Slurps the rom into the vm memory
+void vm::load_rom(std::string path)
+{
+    std::ifstream rom(path, std::ios::binary | std::ios::ate);
+    auto size = rom.tellg();
+    rom.seekg(0, std::ios::beg);
+    rom.read(reinterpret_cast<char*>(memory.data() + 512), size);
+    program_counter = 512;
+}
+
+// Fetches the next instruction and increments the program counter
+void vm::fetch()
+{
+    current_op = instruction(memory[program_counter], memory[program_counter + 1]);
+    program_counter += 2;
+}
+
+// Execute opcode switch
 void vm::execute()
 {
     auto&& [type, x, y, n, nn, nnn] = current_op;
@@ -218,14 +244,69 @@ void vm::execute()
     case 0xE:
         switch (nn) {
 
-            // Skip next instruction if the key with the balue of V[x] is pressed
-            case 0x9E:
+        // Skip next instruction if the key with the balue of V[x] is pressed
+        case 0x9E:
+            // TODO
             break;
-            // Skip next instruction if the key with the balue of V[x] is NOT pressed
-            case 0xA1:
+        // Skip next instruction if the key with the balue of V[x] is NOT pressed
+        // TODO
+        case 0xA1:
             break;
         }
+        break;
 
+    case 0xF:
+        switch (nn) {
+        // set Vx to delay timer
+        case 0x07:
+            V[x] = delay_timer;
+            break;
+            // Block execution until keypress. Store keypress in V[x]
+        case 0x0A:
+            // TODO
+            break;
+        // set delay timer to V[x]
+        case 0x15:
+            delay_timer = V[x];
+            break;
+        // Set sound timer to V[x]
+        case 0x18:
+            sound_timer = V[x];
+            break;
+        // increment index register by V[x]
+        case 0x1E:
+            index_reg += V[x];
+            break;
+        // set I to the Font that is the hex vale of V[x]
+        case 0x29:
+            // TODO
+            break;
+        //  "Binary-coded decimal conversion"
+        // Splits the number at V[x] up by the hundreths place, tens place
+        // and once place and stores them at an offset from the Index register
+        // hundreths place at I, tens at I+1, and ones at I+2
+        // Example with 155: 100 at address I, 50 at address I + 1, and 5 at I + 2
+        case 0x33: {
+            auto num = V[x];
+            int i = 2;
+            while (num) {
+                memory[index_reg + i--] = num % 10;
+                num /= 10;
+            }
+        } break;
+        // Store values froms registers V0 through Vx in memory starting at I
+        case 0x55:
+            for (int i = 0; i < x; i++) {
+                memory[index_reg + i] = V[i];
+            }
+            break;
+        // Read register values from index register starting at location I
+        case 0x65:
+            for (int i = 0; i < x; i++) {
+                V[i] = memory[index_reg + i];
+            }
+            break;
+        }
         break;
     default:
         break;
