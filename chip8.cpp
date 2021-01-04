@@ -2,6 +2,7 @@
 #include <algorithm>
 #include <chrono>
 #include <cstdint>
+#include <cstdlib>
 #include <fstream>
 #include <random>
 #include <unordered_map>
@@ -30,96 +31,40 @@ uint8_t rng()
     std::uniform_int_distribution<int> dist(0, 255);
     return dist(rng);
 }
-
 // constructor
 vm::vm()
 {
+    // clang-format off
     // fonts
     const std::array<uint8_t, 5 * 16> fonts = {
         0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
-        0x20,
-        0x60,
-        0x20,
-        0x20,
-        0x70, // 1
-        0xF0,
-        0x10,
-        0xF0,
-        0x80,
-        0xF0, // 2
-        0xF0,
-        0x10,
-        0xF0,
-        0x10,
-        0xF0, // 3
-        0x90,
-        0x90,
-        0xF0,
-        0x10,
-        0x10, // 4
-        0xF0,
-        0x80,
-        0xF0,
-        0x10,
-        0xF0, // 5
-        0xF0,
-        0x80,
-        0xF0,
-        0x90,
-        0xF0, // 6
-        0xF0,
-        0x10,
-        0x20,
-        0x40,
-        0x40, // 7
-        0xF0,
-        0x90,
-        0xF0,
-        0x90,
-        0xF0, // 8
-        0xF0,
-        0x90,
-        0xF0,
-        0x10,
-        0xF0, // 9
-        0xF0,
-        0x90,
-        0xF0,
-        0x90,
-        0x90, // A
-        0xE0,
-        0x90,
-        0xE0,
-        0x90,
-        0xE0, // B
-        0xF0,
-        0x80,
-        0x80,
-        0x80,
-        0xF0, // C
-        0xE0,
-        0x90,
-        0x90,
-        0x90,
-        0xE0, // D
-        0xF0,
-        0x80,
-        0xF0,
-        0x80,
-        0xF0, // E
-        0xF0,
-        0x80,
-        0xF0,
-        0x80,
-        0x80 // F
+        0x20, 0x60, 0x20, 0x20, 0x70, // 1
+        0xF0, 0x10, 0xF0, 0x80, 0xF0, // 2
+        0xF0, 0x10, 0xF0, 0x10, 0xF0, // 3
+        0x90, 0x90, 0xF0, 0x10, 0x10, // 4
+        0xF0, 0x80, 0xF0, 0x10, 0xF0, // 5
+        0xF0, 0x80, 0xF0, 0x90, 0xF0, // 6
+        0xF0, 0x10, 0x20, 0x40, 0x40, // 7
+        0xF0, 0x90, 0xF0, 0x90, 0xF0, // 8
+        0xF0, 0x90, 0xF0, 0x10, 0xF0, // 9
+        0xF0, 0x90, 0xF0, 0x90, 0x90, // A
+        0xE0, 0x90, 0xE0, 0x90, 0xE0, // B
+        0xF0, 0x80, 0x80, 0x80, 0xF0, // C
+        0xE0, 0x90, 0x90, 0x90, 0xE0, // D
+        0xF0, 0x80, 0xF0, 0x80, 0xF0, // E
+        0xF0, 0x80, 0xF0, 0x80, 0x80  // F
     };
 
     // Copy font data to memory
     std::copy(fonts.begin(), fonts.end(), memory.begin());
 
     keypad = {
-        { "1", false }, { "2", false }, { "3", false }, { "C", false }, { "4", false }, { "5", false }, { "6", false }, { "D", false }, { "7", false }, { "8", false }, { "9", false }, { "E", false }, { "A", false }, { "0", false }, { "B", false }, { "F", false }
+        { 0x1, false }, { 0x2, false }, { 0x3, false }, { 0xC, false },
+        { 0x4, false }, { 0x5, false }, { 0x6, false }, { 0xD, false },
+        { 0x7, false }, { 0x8, false }, { 0x9, false }, { 0xE, false },
+        { 0xA, false }, { 0x0, false }, { 0xB, false }, { 0xF, false }
     };
+    // clang-format on
 }
 
 // start delay timer on a seperate thread
@@ -252,12 +197,13 @@ void vm::execute()
             break;
 
         // shift right by 1
+        // store LSB in V[0xF]
         case 0x6:
             V[0xF] = V[x] & 1;
-            V[x] /= 2;
+            V[x] >>= 1;
             break;
 
-            // subtraction v[y] - v[x]. if v[y] > v[x] then v[f] is set to 1
+        // subtraction v[y] - v[x]. if v[y] > v[x] then v[f] is set to 1
         case 0x7:
             V[0xF] = V[x] < V[y];
             V[x] = V[y] - V[x];
@@ -265,8 +211,8 @@ void vm::execute()
 
         // shift left
         case 0xE:
-            V[0xF] = V[x] & 0b10000000;
-            V[x] *= 2;
+            V[0xF] = V[x] >> 7;
+            V[x] <<= 1;
             break;
 
         } // switch
@@ -319,13 +265,12 @@ void vm::execute()
             for (int bit = 0; bit < 8; bit++) {
                 // if the pixel is on in the sprite row xor it with the screen coords
                 auto coords = ((x_coord + bit) + SCREEN_WIDTH * (y_coord + byte)) % 2048;
-                auto d_pix = screen[coords];
                 // each bit in the sprite is a pixel
                 auto s_pix = sprite & (0b10000000 >> bit);
                 if (s_pix) {
+                    V[0xF] = screen[coords] == 1;
                     screen[coords] ^= 1;
                     // if was originally 1 set to 1
-                    V[0xF] = d_pix;
                 }
             }
         }
@@ -335,14 +280,13 @@ void vm::execute()
     // two instructions here
     case 0xE:
         switch (nn) {
-
-        // Skip next instruction if the key with the balue of V[x] is pressed
+        // Skip next instruction if the key with the value of V[x] is pressed
         case 0x9E:
-            // TODO
+            if (keypad[(V[x] & 0xF)]) program_counter += 2;
             break;
-        // Skip next instruction if the key with the balue of V[x] is NOT pressed
-        // TODO
+        // Skip next instruction if the key with the value of V[x] is NOT pressed
         case 0xA1:
+            if (!keypad[(V[x] & 0xF)]) program_counter += 2;
             break;
         }
         break;
@@ -354,9 +298,17 @@ void vm::execute()
             V[x] = delay_timer;
             break;
             // Block execution until keypress. Store keypress in V[x]
-        case 0x0A:
-            // TODO
-            break;
+        case 0x0A: {
+            bool pressed = false;
+            for (auto&& [key, press] : keypad) {
+                if (press) {
+                    pressed = press;
+                    V[x] = key;
+                    break;
+                }
+            }
+            if (!pressed) program_counter -= 2; // repeat instruction
+        } break;
         // set delay timer to V[x]
         case 0x15:
             delay_timer = V[x];
@@ -371,7 +323,7 @@ void vm::execute()
             break;
         // set I to the Font that is the hex value of V[x]
         case 0x29:
-            // TODO
+            index_reg = (V[x] & 0xF * 5);
             break;
         //  "Binary-coded decimal conversion"
         // Splits the number at V[x] up by the hundreths place, tens place
@@ -380,21 +332,20 @@ void vm::execute()
         // Example with 155: 100 at address I, 50 at address I + 1, and 5 at I + 2
         case 0x33: {
             auto num = V[x];
-            int i = 2;
-            while (num) {
-                memory[index_reg + i--] = num % 10;
+            for (int i = 2; i >= 0; i--) {
+                memory[index_reg + i] = num > 0 ? num % 10 : 0;
                 num /= 10;
             }
         } break;
         // Store values froms registers V0 through Vx in memory starting at I
         case 0x55:
-            for (int i = 0; i < x; i++) {
+            for (int i = 0; i <= x; i++) {
                 memory[index_reg + i] = V[i];
             }
             break;
         // Read register values from index register starting at location I
         case 0x65:
-            for (int i = 0; i < x; i++) {
+            for (int i = 0; i <= x; i++) {
                 V[i] = memory[index_reg + i];
             }
             break;
@@ -407,9 +358,10 @@ void vm::execute()
 
 void vm::tick()
 {
+    auto frame_start = std::chrono::high_resolution_clock::now();
     fetch();
     execute();
-    std::this_thread::sleep_for(60ms);
+    std::this_thread::sleep_for(frame_start + 16ms - std::chrono::high_resolution_clock::now());
 }
 
 } // namespace chip8

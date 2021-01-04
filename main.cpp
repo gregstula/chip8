@@ -6,13 +6,17 @@
 #include <string>
 #include <unordered_map>
 
-int main()
+int main(int argc, char* argv[])
 {
     try {
+        if (argc <= 1) {
+            std::cout << "Use: ./chip8 [rom]" << std::endl;
+            return 0;
+        }
+
         sdl8::display display {};
         chip8::vm vm {};
-
-        vm.load_rom("ibmlogo.ch8");
+        vm.load_rom(argv[1]);
         vm.start_timers();
 
         bool quit = false;
@@ -45,7 +49,8 @@ int main()
             }
             vm.tick();
             display.render(vm.screen);
-            /*            int count = 0;
+/*
+            int count = 0;
             for (auto&& i : vm.screen) {
                 std::cout << (int)i;
                 if (++count % chip8::SCREEN_WIDTH == 0) std::cout << "\n";
