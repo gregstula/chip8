@@ -39,6 +39,7 @@ struct instruction {
 };
 
 struct vm {
+    vm();
     void start_timers();
     void load_rom(std::string path);
     void tick();
