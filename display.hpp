@@ -7,7 +7,11 @@
 
 #include "chip8.hpp"
 
-namespace chip8 {
+namespace sdl8 {
+using chip8::SCREEN_DIMS;
+using chip8::SCREEN_HEIGHT;
+using chip8::SCREEN_WIDTH;
+
 class display {
     SDL_Window* window;
     SDL_Renderer* renderer;
@@ -29,4 +33,4 @@ public:
     display& operator=(display&&) = delete;
 };
 
-} // namespace chip8
+} // namespace sdl8

@@ -2,7 +2,7 @@
 #include <cstring>
 #include <stdexcept>
 
-namespace chip8 {
+namespace sdl8 {
 
 display::display()
 {
@@ -71,4 +71,4 @@ void display::render(std::array<uint8_t, SCREEN_DIMS>& pixels)
     SDL_RenderPresent(renderer);
 }
 
-} // namespace chip8
+} // namespace sdl8

@@ -6,6 +6,7 @@
 #include <stack>
 #include <string>
 #include <thread>
+#include <unordered_map>
 
 namespace chip8 {
 
@@ -50,6 +51,7 @@ struct vm {
     std::uint16_t index_reg;
     std::stack<std::uint16_t> stack;
     std::array<std::uint8_t, 15> V;
+    std::unordered_map<std::string, bool> keypad;
 
     // timers
     std::atomic<std::uint8_t> delay_timer { 0 };
@@ -57,7 +59,6 @@ struct vm {
 
     // current op
     instruction current_op { 0, 0 };
-
     void launch_delay_timer();
     void launch_timer(std::atomic<std::uint8_t>& timer);
     void fetch();

@@ -14,6 +14,7 @@ set (SRCS
     chip8.hpp
     display.cpp
     display.hpp
+    keypad.hpp
     main.cpp
 )
 
