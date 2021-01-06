@@ -44,13 +44,13 @@ struct vm {
     void load_rom(std::string path);
     void tick();
 
-    std::array<std::uint8_t, 4096> memory{};
-    std::array<std::uint8_t, SCREEN_DIMS> screen{};
-    std::uint16_t program_counter{};
-    std::uint16_t index_reg{};
-    std::stack<std::uint16_t> stack{};
-    std::array<std::uint8_t, 15> V{};
-    std::unordered_map<uint8_t, bool> keypad{};
+    std::array<std::uint8_t, 4096> memory {};
+    std::array<std::uint8_t, SCREEN_DIMS> screen {};
+    std::uint16_t program_counter {};
+    std::uint16_t index_reg {};
+    std::stack<std::uint16_t> stack {};
+    std::array<std::uint8_t, 15> V {};
+    std::unordered_map<uint8_t, bool> keypad {};
 
     // timers
     std::atomic<std::uint8_t> delay_timer { 0 };

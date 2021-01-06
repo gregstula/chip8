@@ -11,7 +11,7 @@ namespace chip8 {
 using namespace std::chrono_literals;
 
 // hellish C++ rand() replacement
-std::mt19937 make_seeded_rng()
+static std::mt19937 make_seeded_rng()
 {
     std::random_device dev_rand; // reads from /dev/random and returns an int
     std::array<std::uint32_t, std::mt19937::state_size> a; // array to hold all 600+ states needed to properly seed "mersenne twister" rng
@@ -24,13 +24,14 @@ std::mt19937 make_seeded_rng()
 // over-engineered rng function for the 0xC instruction to get a random int 0-255
 // mt19937 aka mersenne twister is expensive to make so we only make it once
 // that's why we use a seperate function to make it and save it statically
-uint8_t rng()
+static int8_t rng()
 {
 
     thread_local static auto rng = make_seeded_rng();
     std::uniform_int_distribution<int> dist(0, 255);
     return dist(rng);
 }
+
 // constructor
 vm::vm()
 {
@@ -361,7 +362,7 @@ void vm::tick()
     auto frame_start = std::chrono::high_resolution_clock::now();
     fetch();
     execute();
-    std::this_thread::sleep_for(frame_start + 16ms - std::chrono::high_resolution_clock::now());
+    std::this_thread::sleep_for(frame_start + 1818181ns - std::chrono::high_resolution_clock::now());
 }
 
 } // namespace chip8

@@ -49,7 +49,7 @@ int main(int argc, char* argv[])
             }
             vm.tick();
             display.render(vm.screen);
-/*
+            /*
             int count = 0;
             for (auto&& i : vm.screen) {
                 std::cout << (int)i;
