@@ -1,4 +1,5 @@
 #include "chip8.hpp"
+#include <iostream>
 #include <algorithm>
 #include <chrono>
 #include <cstdint>
@@ -75,9 +76,10 @@ void vm::launch_timer(std::atomic<std::uint8_t>& timer)
         for (;;) {
             auto target_time = std::chrono::high_resolution_clock::now();
             while (timer) {
-                target_time += 16ms;
+                target_time += 16670000ns;
                 std::this_thread::sleep_until(target_time);
-                --delay_timer;
+                std::cout << "Delay timer is: " << (int) delay_timer << std::endl;
+                --timer;
             }
             std::this_thread::yield();
         }
