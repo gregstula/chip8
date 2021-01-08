@@ -1,6 +1,5 @@
 # chip8-emulator
 A chip 8 emulator written in C++ with SDL
+## Compiling 
 
-#Compiling#
-
-#How to use#
+## How to use
