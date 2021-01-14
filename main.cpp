@@ -49,15 +49,6 @@ int main(int argc, char* argv[])
             }
             vm.tick();
             display.render(vm.screen);
-/*
-            int count = 0;
-            for (auto&& i : vm.screen) {
-                std::cout << (int)i;
-                if (++count % chip8::SCREEN_WIDTH == 0) std::cout << "\n";
-            }
-            std::cout << "OP:" << std::hex << (int)vm.current_op.type << std::endl;
-
-*/
         }
     }
     catch (std::exception& e) {

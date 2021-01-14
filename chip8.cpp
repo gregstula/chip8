@@ -78,7 +78,6 @@ void vm::launch_timer(std::atomic<std::uint8_t>& timer)
             while (timer) {
                 target_time += 16670000ns;
                 std::this_thread::sleep_until(target_time);
-                std::cout << "Delay timer is: " << (int) delay_timer << std::endl;
                 --timer;
             }
             std::this_thread::yield();
