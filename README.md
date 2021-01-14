@@ -1,7 +1,7 @@
 # chip8
 A multithreaded chip 8 emulator written in C++17 with SDL
 
-![space-invaders](https://github.com/gregstula/chip8/screenshot.png)
+![space-invaders](https://github.com/gregstula/chip8/blob/screenshot.png)
 
 
 ## Compiling
