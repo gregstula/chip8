@@ -49,7 +49,7 @@ struct vm {
     std::uint16_t program_counter {};
     std::uint16_t index_reg {};
     std::stack<std::uint16_t> stack {};
-    std::array<std::uint8_t, 15> V {};
+    std::array<std::uint8_t, 16> V {};
     std::unordered_map<uint8_t, bool> keypad {};
 
     // timers
