@@ -5,11 +5,13 @@ A multithreaded chip 8 emulator written in C++17 with SDL
 
 
 ## Compiling
-Requires: SDL2
+Requires: SDL2, Qt6
 
-Compiling is easy with cmake.
+Install and play:
+`git clone https://github.com/gregstula/cmake`
+`make cmake && make test`
 
-Using cmake
+Manually using cmake
 `cmake -S . -B build`
 `cmake --build build`
 
