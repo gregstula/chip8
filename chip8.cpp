@@ -1,10 +1,10 @@
 #include "chip8.hpp"
-#include <iostream>
 #include <algorithm>
 #include <chrono>
 #include <cstdint>
 #include <cstdlib>
 #include <fstream>
+#include <iostream>
 #include <random>
 #include <unordered_map>
 
@@ -360,10 +360,10 @@ void vm::execute()
 
 void vm::tick()
 {
-    auto frame_start = std::chrono::high_resolution_clock::now();
+    // auto frame_start = std::chrono::high_resolution_clock::now();
     fetch();
     execute();
-    std::this_thread::sleep_for(frame_start + 1818181ns - std::chrono::high_resolution_clock::now());
+    // std::this_thread::sleep_for(frame_start + 1818181ns - std::chrono::high_resolution_clock::now());
 }
 
 } // namespace chip8

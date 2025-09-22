@@ -1,5 +1,6 @@
 ---
 Language:        Cpp
+BasedOnStyle: "WebKit"
 AccessModifierOffset: -4
 AlignAfterOpenBracket: DontAlign
 AlignConsecutiveMacros: false
@@ -98,10 +99,8 @@ SpacesInCStyleCastParentheses: false
 SpacesInParentheses: false
 SpacesInSquareBrackets: false
 Standard: Auto
-StatementMacros:
-  - Q_UNUSED
-  - QT_REQUIRE_VERSION
-TabWidth:        8
+StatementMacros: ['Q_OBJECT', 'Q_GADGET', 'Q_INTERFACES', 'Q_UNUSED', 'QT_REQUIRE_VERSION']
+AttributeMacros: ['Q_PROPERTY', 'Q_INVOKABLE']
+TabWidth:        4
 UseTab:          Never
 ...
-
