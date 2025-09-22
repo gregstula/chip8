@@ -65,7 +65,7 @@ void display::render(std::array<uint8_t, SCREEN_DIMS>& pixels)
     // unlock the texture applying changes.
     SDL_UnlockTexture(texture);
 
-    //SDL_Rect dest_rect = {0,0,SCREEN_WIDTH * SCALE, SCREEN_HEIGHT * SCALE};
+    // SDL_Rect dest_rect = {0,0,SCREEN_WIDTH * SCALE, SCREEN_HEIGHT * SCALE};
     SDL_RenderClear(renderer);
     SDL_RenderCopy(renderer, texture, nullptr, nullptr);
     SDL_RenderPresent(renderer);

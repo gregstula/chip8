@@ -1,10 +1,9 @@
-#include "chip8.hpp"
 #include "display.hpp"
-#include "keypad.hpp"
+#include <QApplication>
 #include <exception>
 #include <iostream>
+#include <qmainwindow.h>
 #include <string>
-#include <unordered_map>
 
 int main(int argc, char* argv[])
 {
@@ -14,45 +13,16 @@ int main(int argc, char* argv[])
             return 0;
         }
 
-        sdl8::display display {};
-        chip8::vm vm {};
-        vm.load_rom(argv[1]);
-        vm.start_timers();
+        QApplication app(argc, argv);
 
-        bool quit = false;
-        while (!quit) {
-            SDL_Event event;
-            while (SDL_PollEvent(&event)) {
-
-                if (event.type == SDL_QUIT) {
-                    quit = true;
-                    break;
-                }
-                else if (event.type == SDL_KEYDOWN) {
-                    // convert scancode to emulator keymap string;
-                    auto lookup = sdl8::scancode_to_keypad.find(event.key.keysym.scancode);
-                    if (lookup != sdl8::scancode_to_keypad.end()) {
-                        auto key = lookup->second;
-                        // key was pressed
-                        vm.keypad[key] = true;
-                    }
-                }
-                else if (event.type == SDL_KEYUP) {
-                    // convert scancode to emulator keymap string;
-                    auto lookup = sdl8::scancode_to_keypad.find(event.key.keysym.scancode);
-                    if (lookup != sdl8::scancode_to_keypad.end()) {
-                        auto key = lookup->second;
-                        // key was pressed
-                        vm.keypad[key] = false;
-                    }
-                }
-            }
-            vm.tick();
-            display.render(vm.screen);
-        }
+        qt8::display_widget* qt_wrapper = new qt8::display_widget();
+        qt_wrapper->show();
+        QTimer::singleShot(100, [&]() {
+            qt_wrapper->run_vm(argv[1]);
+        });
+        return app.exec();
     }
     catch (std::exception& e) {
-        std::cerr << e.what() << std::endl;
+        std::cerr << e.what();
     }
-    return 0;
 }
