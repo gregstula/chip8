@@ -5,6 +5,7 @@
 #include <fstream>
 #include <iostream>
 #include <random>
+#include <thread>
 #include <unordered_map>
 
 namespace chip8 {
