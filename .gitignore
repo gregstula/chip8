@@ -112,3 +112,4 @@ CMakeLists.txt.user
 # scratch file
 test.cpp
 c8games/
+.cache/
