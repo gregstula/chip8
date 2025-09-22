@@ -1,11 +1,8 @@
 #pragma once
 #include <array>
 #include <atomic>
-#include <condition_variable>
-#include <memory>
 #include <stack>
 #include <string>
-#include <thread>
 #include <unordered_map>
 namespace chip8 {
 

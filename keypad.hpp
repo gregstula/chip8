@@ -1,5 +1,4 @@
 #include <SDL2/SDL.h>
-#include <string>
 #include <unordered_map>
 // clang-format off
 

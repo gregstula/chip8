@@ -1,5 +1,7 @@
 #pragma once
 #include "keypad.hpp"
+#include <QApplication>
+#include <QCloseEvent>
 #include <QString>
 #include <QTimer>
 #include <QWidget>
@@ -7,16 +9,7 @@
 #include <array>
 #include <cstdint>
 #include <memory>
-#include <print>
-#include <qapplication.h>
-#include <qnamespace.h>
-#include <qtenvironmentvariables.h>
-#include <qtimer.h>
-#include <qwidget.h>
-#include <sstream>
 #include <string>
-
-using std::println;
 
 #include "chip8.hpp"
 
@@ -122,6 +115,7 @@ public:
             vm.tick();
             display->render(vm.screen);
         }
+        QApplication::quit();
     }
 
 protected:
