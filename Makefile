@@ -8,6 +8,9 @@ all:
 debug:
 	g++ -g $(CXXFLAGS) -DMESSAGE='"Compiled with GCC"' $(LIBS) -o chip8 $(SRC)
 
+cmake:
+	cmake -S . -B build && cmake --build build
+
 clean:
 	@rm -f chip8
 	@rm -f *.o
