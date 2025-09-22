@@ -1,7 +1,7 @@
 # Created by and for Qt Creator This file was created for editing the project sources only.
 # You may attempt to use it for building too, by modifying this file here.
 
-cmake_minimum_required(VERSION 3.19)
+cmake_minimum_required(VERSION 3.30)
 project(chip8)
 set(CMAKE_VERBOSE_MAKEFILE ON)
 find_package(SDL2 REQUIRED)
